@@ -10,25 +10,25 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).''.\DIRECTORY_SEPARATOR.'vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerQBe0V9c\App_KernelDevDebugContainer::class, null);
-require __DIR__.'/ContainerQBe0V9c/getSession_FactoryService.php';
-require __DIR__.'/ContainerQBe0V9c/getServicesResetterService.php';
-require __DIR__.'/ContainerQBe0V9c/getSecrets_VaultService.php';
-require __DIR__.'/ContainerQBe0V9c/getRouting_LoaderService.php';
-require __DIR__.'/ContainerQBe0V9c/getMonolog_Logger_CacheService.php';
-require __DIR__.'/ContainerQBe0V9c/getMonolog_LoggerService.php';
-require __DIR__.'/ContainerQBe0V9c/getErrorControllerService.php';
-require __DIR__.'/ContainerQBe0V9c/getContainer_EnvVarProcessorsLocatorService.php';
-require __DIR__.'/ContainerQBe0V9c/getContainer_EnvVarProcessorService.php';
-require __DIR__.'/ContainerQBe0V9c/getCache_SystemClearerService.php';
-require __DIR__.'/ContainerQBe0V9c/getCache_SystemService.php';
-require __DIR__.'/ContainerQBe0V9c/getCache_GlobalClearerService.php';
-require __DIR__.'/ContainerQBe0V9c/getCache_AppClearerService.php';
-require __DIR__.'/ContainerQBe0V9c/getCache_AppService.php';
-require __DIR__.'/ContainerQBe0V9c/getArgumentResolver_ServiceService.php';
-require __DIR__.'/ContainerQBe0V9c/getTemplateControllerService.php';
-require __DIR__.'/ContainerQBe0V9c/getRedirectControllerService.php';
-require __DIR__.'/ContainerQBe0V9c/get_ServiceLocator_XUrKPVUService.php';
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerVKgsnrs\App_KernelDevDebugContainer::class, null);
+require __DIR__.'/ContainerVKgsnrs/getSession_FactoryService.php';
+require __DIR__.'/ContainerVKgsnrs/getServicesResetterService.php';
+require __DIR__.'/ContainerVKgsnrs/getSecrets_VaultService.php';
+require __DIR__.'/ContainerVKgsnrs/getRouting_LoaderService.php';
+require __DIR__.'/ContainerVKgsnrs/getMonolog_Logger_CacheService.php';
+require __DIR__.'/ContainerVKgsnrs/getMonolog_LoggerService.php';
+require __DIR__.'/ContainerVKgsnrs/getErrorControllerService.php';
+require __DIR__.'/ContainerVKgsnrs/getContainer_EnvVarProcessorsLocatorService.php';
+require __DIR__.'/ContainerVKgsnrs/getContainer_EnvVarProcessorService.php';
+require __DIR__.'/ContainerVKgsnrs/getCache_SystemClearerService.php';
+require __DIR__.'/ContainerVKgsnrs/getCache_SystemService.php';
+require __DIR__.'/ContainerVKgsnrs/getCache_GlobalClearerService.php';
+require __DIR__.'/ContainerVKgsnrs/getCache_AppClearerService.php';
+require __DIR__.'/ContainerVKgsnrs/getCache_AppService.php';
+require __DIR__.'/ContainerVKgsnrs/getArgumentResolver_ServiceService.php';
+require __DIR__.'/ContainerVKgsnrs/getTemplateControllerService.php';
+require __DIR__.'/ContainerVKgsnrs/getRedirectControllerService.php';
+require __DIR__.'/ContainerVKgsnrs/get_ServiceLocator_XUrKPVUService.php';
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
