@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< Updated upstream
   <component name="MessDetectorOptionsConfiguration">
     <option name="transferred" value="true" />
   </component>
@@ -10,6 +11,8 @@
     <option name="highlightLevel" value="WARNING" />
     <option name="transferred" value="true" />
   </component>
+=======
+>>>>>>> Stashed changes
   <component name="PhpIncludePathManager">
     <include_path>
       <path value="$PROJECT_DIR$/P6/vendor/psr/cache" />
@@ -84,6 +87,7 @@
       <path value="$PROJECT_DIR$/vendor/symfony/finder" />
     </include_path>
   </component>
+<<<<<<< Updated upstream
   <component name="PhpProjectSharedConfiguration" php_language_level="8.0" />
   <component name="PhpStanOptionsConfiguration">
     <option name="transferred" value="true" />
@@ -96,4 +100,6 @@
   <component name="PsalmOptionsConfiguration">
     <option name="transferred" value="true" />
   </component>
+=======
+>>>>>>> Stashed changes
 </project>
