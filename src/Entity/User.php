@@ -36,6 +36,9 @@ class User
     #[ORM\OneToMany(targetEntity: Tricks::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $tricks;
 
+    #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $comments;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
