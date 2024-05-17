@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -15,34 +16,46 @@ class User
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $firstName = null;
+    #[ORM\Column(length: 255)]
+    private ?string $first_name = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $lastName = null;
+    #[ORM\Column(length: 255)]
+    private ?string $last_name = null;
 
     #[ORM\Column(length: 100, unique: true)]
     private ?string $email = null;
 
     #[ORM\Column(length: 50, unique: true)]
-    private ?string $userName = null;
+    private ?string $user_name = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updatedAt = null;
+    private ?\DateTimeImmutable $updated_at = null;
 
-    #[ORM\OneToMany(targetEntity: Tricks::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\Column(length: 255)]
+    private ?string $password = null;
+
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $roles = null;
+
+    /**
+     * @var Collection<int, Tricks>
+     */
+    #[ORM\OneToMany(targetEntity: Tricks::class, mappedBy: 'user_id')]
     private Collection $tricks;
 
-    #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'user', orphanRemoval: true)]
+    /**
+     * @var Collection<int, Comments>
+     */
+    #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'user')]
     private Collection $comments;
 
     public function __construct()
     {
-        $this->comments = new ArrayCollection();
         $this->tricks = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -52,24 +65,24 @@ class User
 
     public function getFirstName(): ?string
     {
-        return $this->firstName;
+        return $this->first_name;
     }
 
-    public function setFirstName(string $firstName): static
+    public function setFirstName(string $first_name): static
     {
-        $this->firstName = $firstName;
+        $this->first_name = $first_name;
 
         return $this;
     }
 
     public function getLastName(): ?string
     {
-        return $this->lastName;
+        return $this->last_name;
     }
 
-    public function setLastName(string $lastName): static
+    public function setLastName(string $last_name): static
     {
-        $this->lastName = $lastName;
+        $this->last_name = $last_name;
 
         return $this;
     }
@@ -88,53 +101,90 @@ class User
 
     public function getUserName(): ?string
     {
-        return $this->userName;
+        return $this->user_name;
     }
 
-    public function setUserName(string $userName): static
+    public function setUserName(string $user_name): static
     {
-        $this->userName = $userName;
+        $this->user_name = $user_name;
 
         return $this;
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->createdAt;
+        return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
-        $this->createdAt = $createdAt;
+        $this->created_at = $created_at;
 
         return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
-        return $this->updatedAt;
+        return $this->updated_at;
     }
 
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
-        $this->updatedAt = $updatedAt;
+        $this->updated_at = $updated_at;
 
         return $this;
     }
 
-    public function getTricks(): ?Tricks
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    public function getRoles(): ?string
+    {
+        return $this->roles;
+    }
+
+    public function setRoles(string $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tricks>
+     */
+    public function getTricks(): Collection
     {
         return $this->tricks;
     }
 
-    public function setTricks(Tricks $tricks): static
+    public function addTrick(Tricks $trick): static
     {
-        // set the owning side of the relation if necessary
-        if ($tricks->getUser() !== $this) {
-            $tricks->setUser($this);
+        if (!$this->tricks->contains($trick)) {
+            $this->tricks->add($trick);
+            $trick->setUserId($this);
         }
 
-        $this->tricks = $tricks;
+        return $this;
+    }
+
+    public function removeTrick(Tricks $trick): static
+    {
+        if ($this->tricks->removeElement($trick)) {
+            // set the owning side to null (unless already changed)
+            if ($trick->getUserId() === $this) {
+                $trick->setUserId(null);
+            }
+        }
 
         return $this;
     }
@@ -151,7 +201,7 @@ class User
     {
         if (!$this->comments->contains($comment)) {
             $this->comments->add($comment);
-            $comment->setUserId($this);
+            $comment->setUser($this);
         }
 
         return $this;
@@ -161,30 +211,8 @@ class User
     {
         if ($this->comments->removeElement($comment)) {
             // set the owning side to null (unless already changed)
-            if ($comment->getUserId() === $this) {
-                $comment->setUserId(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function addTrick(Tricks $trick): static
-    {
-        if (!$this->tricks->contains($trick)) {
-            $this->tricks->add($trick);
-            $trick->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTrick(Tricks $trick): static
-    {
-        if ($this->tricks->removeElement($trick)) {
-            // set the owning side to null (unless already changed)
-            if ($trick->getUser() === $this) {
-                $trick->setUser(null);
+            if ($comment->getUser() === $this) {
+                $comment->setUser(null);
             }
         }
 
