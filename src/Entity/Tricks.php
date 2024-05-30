@@ -34,9 +34,16 @@ class Tricks
     #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'tricks')]
     private Collection $comments;
 
+    /**
+     * @var Collection<int, TricksPhoto>
+     */
+    #[ORM\OneToMany(targetEntity: TricksPhoto::class, mappedBy: 'tricks', orphanRemoval: true)]
+    private Collection $tricksPhotos;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->tricksPhotos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -116,6 +123,36 @@ class Tricks
             // set the owning side to null (unless already changed)
             if ($comment->getTricks() === $this) {
                 $comment->setTricks(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TricksPhoto>
+     */
+    public function getTricksPhotos(): Collection
+    {
+        return $this->tricksPhotos;
+    }
+
+    public function addTricksPhoto(TricksPhoto $tricksPhoto): static
+    {
+        if (!$this->tricksPhotos->contains($tricksPhoto)) {
+            $this->tricksPhotos->add($tricksPhoto);
+            $tricksPhoto->setTricks($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTricksPhoto(TricksPhoto $tricksPhoto): static
+    {
+        if ($this->tricksPhotos->removeElement($tricksPhoto)) {
+            // set the owning side to null (unless already changed)
+            if ($tricksPhoto->getTricks() === $this) {
+                $tricksPhoto->setTricks(null);
             }
         }
 
