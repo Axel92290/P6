@@ -17,4 +17,18 @@
         <li>Your template at <code>D:/dev/P6/templates/index/index.html.twig</code></li>
     </ul>
 </div>
+
+    <script>
+        // Cacher tous les tricks par défaut
+        document.querySelectorAll('.col.mb-5').forEach(function (col) {
+            col.style.display = 'none';
+        });
+
+        // Sur les écrans plus grands, afficher les 8 premiers tricks
+        if (window.matchMedia('(min-width: 768px)').matches) {
+            document.querySelectorAll('.col.mb-5:nth-child(-n+8)').forEach(function (col) {
+                col.style.display = 'block';
+            });
+        }
+    </script>
 {% endblock %}

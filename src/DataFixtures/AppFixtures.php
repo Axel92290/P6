@@ -72,39 +72,7 @@ class AppFixtures extends Fixture
 
 
 
-        /*$user = new User();
-        $user->setEmail('axel@gmail.com');
-        $hashedPassword = $this->passwordHasher->hashPassword(
-            $user,
-            'azerty'
-        );
-        $user->setPassword($hashedPassword);
-        $user->setRoles(['ROLE_USER']);
-        $manager->persist($user);
 
-
-        $tricks = new Tricks();
-        $tricks->setName('Trick 1');
-        $tricks->setCreatedAt(new \DateTimeImmutable());
-        $tricks->setUser($user);
-        $manager->persist($tricks);
-
-
-        $tricksPhoto = new TricksPhoto();
-        $tricksPhoto->setPath('trick1.jpg');
-        $tricksPhoto->setCreatedAt(new \DateTimeImmutable());
-        $tricksPhoto->setFirst(true);
-        $tricksPhoto->setTricks($tricks);
-        $manager->persist($tricksPhoto);
-
-        $tricksVideo = new TricksVideo();
-        $tricksVideo->setPath('trick1.mp4');
-        $tricksVideo->setCreatedAt(new \DateTimeImmutable());
-        $tricksVideo->setTricks($tricks);
-        $manager->persist($tricksVideo);
-
-        $manager->flush();
-        */
 
 
     }

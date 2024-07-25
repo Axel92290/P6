@@ -3,10 +3,24 @@
 {% block title %}Reset your password{% endblock %}
 
 {% block body %}
-    <h1>Reset your password</h1>
+    <div class="container">
+        <h1 class="text-center mb-5">Reset Password</h1>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-4">
+                {{ form_start(resetForm, {'attr': {'class': 'border border-2 border-dark p-4'}}) }}
 
-    {{ form_start(resetForm) }}
-        {{ form_row(resetForm.plainPassword) }}
-        <button class="btn btn-primary">Reset password</button>
-    {{ form_end(resetForm) }}
+                <div class="mb-3">
+                    {{ form_label(resetForm.plainPassword, 'Password', {'label_attr': {'class': 'form-label d-block text-center'}}) }}
+                    {{ form_widget(resetForm.plainPassword, {'attr': {'class': 'form-control border-0 border-bottom border-dark rounded-0', 'id': 'password'}}) }}
+                    {{ form_errors(resetForm.plainPassword, {'attr': {'class': 'text-danger'}}) }}
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-outline-dark">Reset</button>
+                </div>
+
+                {{ form_end(resetForm) }}
+            </div>
+        </div>
+    </div>
 {% endblock %}
