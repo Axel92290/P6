@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello IndexController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+    <div class="container position-relative px-4 px-lg-5">
+
+
+        <!-- Section-->
+        <section class="py-5">
+            <div class="container px-4 px-lg-5 mt-5">
+                {% for trick in tricks %}
+                    {
+                    <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                        <div class="col mb-5">
+                            <div class="card">
+                                <img class="card-img-top" src="" alt="..."/>
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h6 class="fw-bolder mb-0">{{trick.name}}</h6>
+                                        <div class="d-flex gap-4">
+                                            <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-pen"></i></a>
+                                            <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-trash"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <div class="text-center">
+                    <button id="loadMoreBtn" class="btn btn-outline-primary">Load More</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Cacher tous les tricks par défaut
+        document.querySelectorAll('.col.mb-5').forEach(function (col) {
+            col.style.display = 'none';
+        });
+
+        // Sur les écrans plus grands, afficher les 8 premiers tricks
+        if (window.matchMedia('(min-width: 768px)').matches) {
+            document.querySelectorAll('.col.mb-5:nth-child(-n+8)').forEach(function (col) {
+                col.style.display = 'block';
+            });
+        }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let page = 1;
+            const limit = 6;
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const tricksContainer = document.getElementById('tricksContainer');
+
+            function loadTricks() {
+                fetch(`/load-more-tricks?page=${page}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tricks = data.tricks;
+                        tricks.forEach(trick => {
+                            const cardHtml = `
+                        <div class="col mb-5">
+                            <div class="card">
+                                <img class="card-img-top" src="${trick.image}" alt="..."/>
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h6 class="fw-bolder mb-0">${trick.title}</h6>
+                                        <div class="d-flex gap-4">
+                                            <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-pen"></i></a>
+                                            <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-trash"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                            tricksContainer.insertAdjacentHTML('beforeend', cardHtml);
+                        });
+                        page++;
+                    })
+                    .catch(error => console.error('Error loading tricks:', error));
+            }
+
+            loadMoreBtn.addEventListener('click', loadTricks);
+        });
+    </script>
+
+{% endblock %}

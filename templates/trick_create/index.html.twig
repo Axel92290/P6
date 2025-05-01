@@ -1,20 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello TrickCreateController!{% endblock %}
+{% block title %}Create a Trick{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <div class="container">
+        <h1 class="text-center mb-5">Create a Trick</h1>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                {{ form_start(trickForm, {'attr': {'class': 'border border-2 border-dark p-4'}}) }}
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+                <div class="mb-3">
+                    {{ form_label(trickForm.name, 'Trick Name', {'label_attr': {'class': 'form-label d-block text-center'}}) }}
+                    {{ form_widget(trickForm.name, {'attr': {'class': 'form-control border-0 border-bottom border-dark rounded-0', 'id': 'trick_name'}}) }}
+                    {{ form_errors(trickForm.name, {'attr': {'class': 'text-danger'}}) }}
+                </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>D:/dev/P6/src/Controller/TrickCreateController.php</code></li>
-        <li>Your template at <code>D:/dev/P6/templates/trick_create/index.html.twig</code></li>
-    </ul>
-</div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-outline-dark">Create Trick</button>
+                </div>
+
+                {{ form_end(trickForm) }}
+            </div>
+        </div>
+    </div>
 {% endblock %}

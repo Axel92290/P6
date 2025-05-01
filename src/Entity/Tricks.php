@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use AllowDynamicProperties;
 use App\Repository\TricksRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
-#[ORM\Entity(repositoryClass: TricksRepository::class)]
+#[AllowDynamicProperties] #[ORM\Entity(repositoryClass: TricksRepository::class)]
 class Tricks
 {
     #[ORM\Id]
@@ -46,11 +48,23 @@ class Tricks
     #[ORM\OneToMany(targetEntity: TricksVideo::class, mappedBy: 'tricks', orphanRemoval: true)]
     private Collection $tricksVideos;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $chapo = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+
+
+
+
     public function __construct()
     {
+        $this->created_at = new \DateTimeImmutable();
         $this->comments = new ArrayCollection();
         $this->tricksPhotos = new ArrayCollection();
         $this->tricksVideos = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -75,7 +89,7 @@ class Tricks
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    public function setCreatedAt(\DateTimeImmutable $created_at): self
     {
         $this->created_at = $created_at;
 
@@ -113,6 +127,7 @@ class Tricks
     {
         return $this->comments;
     }
+
 
     public function addComment(Comments $comment): static
     {
@@ -194,5 +209,36 @@ class Tricks
         }
 
         return $this;
+    }
+
+    public function getChapo(): ?string
+    {
+        return $this->chapo;
+    }
+
+    public function setChapo(string $chapo): static
+    {
+        $this->chapo = $chapo;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getUri()
+    {
+        $name = strtolower($this->name);
+        $name = str_replace(' ', '-', $name);
+        return $name;
     }
 }

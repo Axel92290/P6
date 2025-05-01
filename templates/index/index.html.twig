@@ -1,34 +1,59 @@
+{# templates/index/index.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Hello IndexController!{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <style>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>D:/dev/P6/src/Controller/IndexController.php</code></li>
-        <li>Your template at <code>D:/dev/P6/templates/index/index.html.twig</code></li>
-    </ul>
-</div>
+    </style>
+    <div class="container position-relative px-4 px-lg-5">
+        <section class="py-5">
+            <div class="text-center">
+                <h1 class="fw-bolder">Welcome {{ app.user }} to the Tricks Page</h1>
+                <p class="lead">Discover amazing tricks and tips!</p>
+
+            </div>
+            <div class="text-center">
+                <a href="{{ path('app_trick_create') }}" class="btn btn-primary">Create a New Trick</a>
+            </div>
+        </section>
+        <!-- Section-->
+        <section class="py-5">
+            <div class="container px-4 px-lg-5 mt-5">
+                <div id="tricksContainer" class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-3 row-cols-xl-4">
+                    {% include 'index/_tricks.html.twig' %}
+                </div>
+            </div>
+            <div class="text-center">
+                <button id="loadMoreBtn" class="btn btn-outline-primary">Load More</button>
+            </div>
+        </section>
+    </div>
 
     <script>
-        // Cacher tous les tricks par défaut
-        document.querySelectorAll('.col.mb-5').forEach(function (col) {
-            col.style.display = 'none';
-        });
+        document.addEventListener("DOMContentLoaded", function() {
 
-        // Sur les écrans plus grands, afficher les 8 premiers tricks
-        if (window.matchMedia('(min-width: 768px)').matches) {
-            document.querySelectorAll('.col.mb-5:nth-child(-n+8)').forEach(function (col) {
-                col.style.display = 'block';
+            // On déclare une variable page qui contiendra le numéro de la page à charger
+            let page = 2;
+            // On récupère le bouton "Load More" et le container des tricks
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            const tricksContainer = document.getElementById('tricksContainer');
+
+            // On écoute le clic sur le bouton "Load More"
+            loadMoreBtn.addEventListener('click', function() {
+                // On envoie une requête fetch pour récupérer les tricks de la page suivante
+                fetch(`/load-more-tricks?page=${page}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // On ajoute les tricks à la fin du container
+                        tricksContainer.insertAdjacentHTML('beforeend', data.html);
+                        page++;
+                    })
+                    .catch(error => console.error('Error:', error));
             });
-        }
+        });
     </script>
 {% endblock %}
+

@@ -3,19 +3,64 @@
 {% block title %}Hello TrickDetailsController!{% endblock %}
 
 {% block body %}
-    <!-- Page Header-->
+    <!-- BLOC IMAGE A LA UNE-->
     <header class="py-2 min-vh-50 position-relative">
         <div class="container px-4 px-lg-5 my-5">
             <div class="d-flex justify-content-between align-items-center">
-                <div class="text-center text-white">
+                <div class="text-center">
                     <figure class="figure">
-                        <img src="../../public/assets/pictures/defaultTrick.png" class="figure-img img-fluid rounded w-75" alt="Trick Image">
+                        <img class="figure-img img-fluid rounded w-25" src="{{ getFeaturedImage(trick) }}"
+                             alt="Trick Image">
                     </figure>
-
+                    <h6 class="fw-bolder mb-0">{{ trick.name }}</h6>
                 </div>
                 <div class="d-flex gap-4 position-absolute top-0 end-0 p-3">
-                    <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-pen"></i></a>
-                    <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-trash"></i></a>
+                    <button class="text-dark text-decoration-none border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#editTrickModal">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <form action="{{ path('app_trick_delete', { id: trick.id }) }}" method="post"
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_trick_' ~ trick.id) }}">
+                        <button type="submit" class="text-dark text-decoration-none border-0 bg-transparent">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Modal Bootstrap -->
+                <div class="modal fade" id="editTrickModal" tabindex="-1" aria-labelledby="editTrickModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="post" action="{{ path('app_tricks_edit_edit', { id: trick.id }) }}" enctype="multipart/form-data">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editTrickModalLabel">Modifier le trick</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="featuredImage" class="form-label">Image à la une</label>
+                                        <input type="file" name="featuredImage" class="form-control" id="featuredImage">
+                                        {% if getFeaturedImage(trick) %}
+                                            <img src="{{ getFeaturedImage(trick) }}" class="img-fluid mt-2" alt="Image actuelle">
+                                        {% endif %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="chapo" class="form-label">Chapô</label>
+                                        <input type="text" name="chapo" id="chapo" value="{{ trick.chapo }}" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description</label>
+                                        <textarea name="description" id="description" rows="4" class="form-control">{{ trick.description }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('edit_trick_' ~ trick.id) }}">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -25,250 +70,78 @@
 
     <!-- Main Content-->
     <div class="container position-relative px-4 px-lg-5">
-
         <!-- Section-->
-        <section class="py-5">
-            <div class="container px-4 px-lg-5 mt-5">
-                <div class="row gx-6 gx-lg-6 row-cols-1 row-cols-md-3 row-cols-xl-6 justify-content-center">
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 1</h5>
-                                    <div class="d-flex gap-4">
+        <div class="container position-relative px-4 px-lg-5">
+            <!-- Section-->
+            <section class="py-5">
+                <div class="container px-4 px-lg-5 mt-5">
+                    <div id="tricksContainer"
+                         class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-lg-4 justify-content-center">
 
+                        <!-- Affichage des photos -->
+                        {% set featureImageId = getFeaturedImageId(trick) %}
+                        {% set photos = trick.tricksPhotos() %}
+                        {% set videos = trick.tricksVideos() %}
+
+                        {% for photo in photos %}
+                            {% if photo.id != featureImageId %}
+                                <div class="col mb-3">
+                                    <div class="card">
+                                        <img class="card-img-top" src="{{ photo.getPath() }}" alt="...">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-center justify-content-around">
+                                                <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-pen"></i></a>
+                                                <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-trash"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Affichage des vidéos -->
+                        {% for video in videos %}
+                            <div class="col mb-3">
+                                <div class="card">
+                                    <iframe class="card-img-top" src="{{ video.getPath() }}" alt="..."></iframe>
+
+                                    <div class="card-body p-4">
+                                        <div class="d-flex align-items-center justify-content-around">
+                                            <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-pen"></i></a>
+                                            <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-trash"></i></a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        {% endfor %}
 
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 2</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 3</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 4</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 5</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 6</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 7</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 8</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 9</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 11</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 12</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col mb-5 ">
-                        <div class="card">
-                            <!-- Trick image-->
-                            <img class="card-img-top" src="https://dummyimage.com/450x300/dee2e6/6c757d.jpg" alt="..."/>
-                            <!-- Trick details-->
-                            <div class="card-body p-4">
-                                <!-- Trick name-->
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h5 class="fw-bolder mb-0">TRICK 13</h5>
-                                    <div class="d-flex gap-4">
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
+
 
         <section class="pb-5">
             <div class="container px-4 px-lg-5 mt-5">
+                {% if trick.chapo %}
+                    <div class="row gx-6 gx-lg-6 row-cols-1 row-cols-md-3 row-cols-xl-6 justify-content-center">
+                        <h2>{{ trick.chapo }}</h2>
+                    </div>
+                {% endif %}
                 <div class="row gx-6 gx-lg-6 row-cols-1 row-cols-md-3 row-cols-xl-6 justify-content-center">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Lorem sed risus ultricies tristique nulla aliquet enim tortor at. Purus sit amet
-                    volutpat consequat mauris nunc congue. Varius morbi enim nunc faucibus. Nulla aliquet enim tortor at
-                    auctor urna. Rhoncus aenean vel elit scelerisque mauris pellentesque pulvinar. Morbi blandit cursus
-                    risus at ultrices mi tempus imperdiet nulla. Gravida arcu ac tortor dignissim. Dolor sit amet
-                    consectetur adipiscing elit pellentesque habitant. Faucibus scelerisque eleifend donec pretium vulputate
-                    sapien. Etiam erat velit scelerisque in dictum non. Non pulvinar neque laoreet suspendisse interdum
-                    consectetur libero id. Suspendisse potenti nullam ac tortor vitae. Laoreet sit amet cursus sit amet
-                    dictum sit amet. Est placerat in egestas erat imperdiet sed euismod nisi porta. Mauris vitae ultricies
-                    leo integer. Id ornare arcu odio ut sem nulla pharetra diam sit. Eget mauris pharetra et ultrices neque
-                    ornare. Dictum fusce ut placerat orci nulla pellentesque dignissim enim. Non consectetur a erat nam at
-                    lectus urna duis convallis.
+                    {{ trick.description }}
                 </div>
             </div>
             <div class="container mt-4">
                 <div class="row justify-content-center equal-height-row">
                     <div class="col-12 col-md-4 col-lg-3 mb-3 equal-height-col">
                         <div class="border border-dark p-3 text-center ">
-                            Date de création : 01/01/2021 à 12:00
+                            Date de création : {{ trick.getCreatedAt()|date('d/m/Y à H:i') }}
                         </div>
                     </div>
                     <div class="col-12 col-md-4 col-lg-3 mb-3 equal-height-col">
                         <div class="border border-dark p-3 text-center">
-                            Date de modification : 01/01/2021 à 12:00
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4 col-lg-3 mb-3 equal-height-col">
-                        <div class="border border-dark p-3 text-center">
-                            Groupe : Groupe 1
+                            Date de modification : {{ trick.getUpdatedAt()|date('d/m/Y à H:i') }}
                         </div>
                     </div>
                 </div>
@@ -282,7 +155,8 @@
                 <div class="col-12 col-md-8 col-lg-6">
                     <div class="d-flex align-items-center">
                         <textarea name="comment" id="comment" cols="6" rows="2" class="form-control"></textarea>
-                        <button class="btn btn-outline-dark ms-2 align-self-stretch" type="button">Leave a comment</button>
+                        <button class="btn btn-outline-dark ms-2 align-self-stretch" type="button">Leave a comment
+                        </button>
                     </div>
                 </div>
             </div>
@@ -290,55 +164,78 @@
         <hr>
 
         <div class="container mt-4">
-            <!-- Commentaire 1 -->
+            {% for comment in trick.getComments() %}
+            <!-- Commentaires -->
             <div class="row justify-content-center mb-3">
                 <div class="col-12 col-md-8 d-flex align-items-start border border-2 border-dark p-3">
-                    <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-dark me-3" style="width: 64px; height: 64px;">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-dark me-3"
+                         style="width: 64px; height: 64px;">
                         <i class="fa-solid fa-user fa-2x"></i>
                     </div>
                     <div>
-                        <h5>Utilisateur 1</h5>
-                        <p>Ceci est le premier commentaire.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Commentaire 2 -->
-            <div class="row justify-content-center mb-3">
-                <div class="col-12 col-md-8 d-flex align-items-start border border-2 border-dark p-3">
-                    <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-dark me-3" style="width: 64px; height: 64px;">
-                        <i class="fa-solid fa-user fa-2x"></i>
-                    </div>
-                    <div>
-                        <h5>Utilisateur 2</h5>
-                        <p>Ceci est le deuxième commentaire.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Commentaire 3 -->
-            <div class="row justify-content-center mb-3">
-                <div class="col-12 col-md-8 d-flex align-items-start border border-2 border-dark p-3">
-                    <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-dark me-3" style="width: 64px; height: 64px;">
-                        <i class="fa-solid fa-user fa-2x"></i>
-                    </div>
-                    <div>
-                        <h5>Utilisateur 3</h5>
-                        <p>Ceci est le troisième commentaire.</p>
-                    </div>
-                </div>
-            </div>
-            <!-- Commentaire 4 -->
-            <div class="row justify-content-center mb-3">
-                <div class="col-12 col-md-8 d-flex align-items-start border border-2 border-dark p-3">
-                    <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-dark me-3" style="width: 64px; height: 64px;">
-                        <i class="fa-solid fa-user fa-2x"></i>
-                    </div>
-                    <div>
-                        <h5>Utilisateur 4</h5>
-                        <p>Ceci est le quatrième commentaire.</p>
+                        <h5>{{ comment.getUser().getUsername() }}</h5>
+                        <p>{{ comment.getContent() }}</p>
+                        <!-- -->
                     </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
+
 
     </div>
+
+    <!-- Modal pour l'édition du trick -->
+    <div class="modal fade" id="editTrickModal" tabindex="-1" aria-labelledby="editTrickModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTrickModalLabel">Éditer le Trick</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulaire d'édition du trick -->
+                    <form
+                            action="{{ path('app_tricks_edit_edit', { id: trick.id }) }}"
+                            method="post"
+                            enctype="multipart/form-data"
+                    >
+                        <div class="mb-3">
+                            <label for="trickName" class="form-label">Nom du Trick</label>
+                            <input type="text" class="form-control" id="trickName" name="name" value="{{ trick.name }}"
+                                   required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="trickChapo" class="form-label">Chapô</label>
+                            <textarea class="form-control" id="trickChapo" name="chapo"
+                                      rows="2">{{ trick.chapo }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="trickDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="trickDescription" name="description"
+                                      rows="4">{{ trick.description }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <div class="mb-3">
+                                <label for="trickPhoto" class="form-label">Modifier la photo principale</label>
+                                <input type="file" class="form-control" id="trickPhoto" name="photo" accept="image/*">
+                                {% if getFeaturedImage(trick) %}
+                                    <div class="mt-2">
+                                        <p>Photo actuelle :</p>
+                                        <img src="{{ getFeaturedImage(trick) }}"
+                                             alt="Photo actuelle de {{ trick.name }}" class="img-fluid rounded">
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
 {% endblock %}

@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Comments;
 use App\Entity\Tricks;
 use App\Entity\TricksPhoto;
 use App\Entity\TricksVideo;
@@ -17,7 +18,7 @@ class AppFixtures extends Fixture
 
     private $faker;
 
-    public function  __construct(UserPasswordHasherInterface $passwordHasher)
+    public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
         $this->passwordHasher = $passwordHasher;
         $this->faker = Factory::create();
@@ -25,10 +26,19 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $usernames = []; // Tableau pour suivre les usernames déjà utilisés
+
         for ($i = 0; $i < 10; $i++) {
-
-
             $user = new User();
+
+            // Générer un username unique
+            do {
+                $username = $this->faker->userName; // Génère un username aléatoire
+            } while (in_array($username, $usernames)); // Vérifie si le username existe déjà
+
+            $user->setUsername($username);
+            $usernames[] = $username; // Ajoute le username au tableau
+
             $user->setEmail($this->faker->email);
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $user,
@@ -38,42 +48,42 @@ class AppFixtures extends Fixture
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
 
-
             for ($j = 0; $j < mt_rand(1, 4); $j++) {
-
                 $tricks = new Tricks();
                 $tricks->setName('Trick ' . $this->faker->streetName);
+                $tricks->setDescription($this->faker->paragraph);
+                $tricks->setChapo($this->faker->word);
                 $tricks->setCreatedAt(new \DateTimeImmutable());
                 $tricks->setUser($user);
+
                 $manager->persist($tricks);
 
+                $tricksPhoto = new TricksPhoto();
+                $tricksPhoto->setPath('/assets/pictures/' . mt_rand(0, 2) . '.jpg');
+                $tricksPhoto->setCreatedAt(new \DateTimeImmutable());
+                $tricksPhoto->setFirst(true);
+                $tricksPhoto->setTricks($tricks);
+                $manager->persist($tricksPhoto);
 
-                for ($k = 0; $k < mt_rand(1, 3); $k++) {
-                    $tricksPhoto = new TricksPhoto();
-                    $tricksPhoto->setPath('/assets/pictures/' . mt_rand(0,2) . '.jpg');
-                    $tricksPhoto->setCreatedAt(new \DateTimeImmutable());
-                    $tricksPhoto->setFirst(true);
-                    $tricksPhoto->setTricks($tricks);
-                    $manager->persist($tricksPhoto);
+                $tricksVideo = new TricksVideo();
+                $tricksVideo->setPath('https://youtu.be/FuVwExvBtdo?si=OQ71FX01VW2KJQu5');
+                $tricksVideo->setCreatedAt(new \DateTimeImmutable());
+                $tricksVideo->setTricks($tricks);
+                $manager->persist($tricksVideo);
 
-                }
-
-                for ($l = 0; $l < mt_rand(1, 3); $l++) {
-                    $tricksVideo = new TricksVideo();
-                    $tricksVideo->setPath('https://youtu.be/FuVwExvBtdo?si=OQ71FX01VW2KJQu5');
-                    $tricksVideo->setCreatedAt(new \DateTimeImmutable());
-                    $tricksVideo->setTricks($tricks);
-                    $manager->persist($tricksVideo);
-
+                for ($m = 0; $m < mt_rand(1, 5); $m++) {
+                    $comment = new Comments();
+                    $comment->setContent($this->faker->paragraph);
+                    $comment->setCreatedAt(new \DateTimeImmutable());
+                    $comment->setUpdatedAt(new \DateTimeImmutable());
+                    $comment->setTricks($tricks);
+                    $comment->setUser($user);
+                    $manager->persist($comment);
                 }
             }
         }
         $manager->flush();
-
-
-
-
-
-
     }
+
+
 }

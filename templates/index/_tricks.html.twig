@@ -1,0 +1,19 @@
+{# templates/index/_tricks.html.twig #}
+{% for trick in tricks %}
+    <div class="col mb-5">
+        <div class="card">
+            <!-- Trick image-->
+            <img class="card-img-top" src="{{ getFeaturedImage(trick) }}" alt="..."/>
+            <!-- Trick details-->
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h6 class="fw-bolder mb-0">{{ trick.name }}</h6>
+                    <div class="d-flex gap-4">
+                        <a href="{{ path('app_trick_details', {"name":trick.getUri(), "id":trick.id}) }}" class="text-dark text-decoration-none"><i class="fa-solid fa-pen"></i></a>
+                        <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-trash"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
