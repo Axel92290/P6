@@ -20,6 +20,59 @@ class TrickDetailsController extends AbstractController
         ]);
     }
 
+    #[Route('/trick/update-fields/{id}', name: 'app_trick_update_fields', methods: ['POST'])]
+    public function updateFields(
+        int                    $id,
+        Request                $request,
+        TricksRepository       $tricksRepository,
+        EntityManagerInterface $em,
+        SluggerInterface       $slugger
+    ): Response
+    {
+        $trick = $tricksRepository->find($id);
+
+        if (!$trick) {
+            throw $this->createNotFoundException('Trick non trouvé.');
+        }
+
+        $chapo = $request->request->get('chapo');
+        $description = $request->request->get('description');
+
+        if ($chapo !== null) {
+            $trick->setChapo($chapo);
+        }
+
+        if ($description !== null) {
+            $trick->setDescription($description);
+        }
+
+        $file = $request->files->get('featuredImage');
+        if ($file) {
+            $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeFilename = $slugger->slug($originalFilename);
+            $newFilename = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
+
+            $file->move($this->getParameter('uploads_directory'), $newFilename);
+
+            foreach ($trick->getTricksPhotos() as $photo) {
+                $photo->setIsFirst(false);
+            }
+
+            $photo = new TricksPhoto();
+            $photo->setPath($newFilename);
+            $photo->setIsFirst(true);
+            $photo->setTrick($trick);
+
+            $em->persist($photo);
+        }
+
+        $em->flush();
+
+        return $this->redirectToRoute('app_trick_details', [
+            'id' => $trick->getId(),
+            'name' => $trick->getUri(),
+        ]);
+    }
 
     #[Route('/trick/delete/{id}', name: 'app_trick_delete', methods: ['POST'])]
     public function delete(int $id, TricksRepository $tricksRepository, EntityManagerInterface $em, Request $request): Response
@@ -39,9 +92,6 @@ class TrickDetailsController extends AbstractController
 
         return $this->redirectToRoute('app_index');
     }
-
-
-
 
 
 }
