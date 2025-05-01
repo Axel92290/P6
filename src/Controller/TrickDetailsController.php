@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\TricksRepository;
@@ -11,21 +12,57 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use App\Entity\TricksPhoto;
 use App\Repository\TricksPhotoRepository;
+use App\Entity\Comments;
+use App\Form\CommentType;
+use App\Repository\CommentsRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+
 
 
 
 
 class TrickDetailsController extends AbstractController
 {
+
     #[Route('/trick/details/{name}/{id}', name: 'app_trick_details', methods: ['GET', 'POST', 'DELETE'])]
     public function index(
         int $id,
-        TricksRepository $tricksRepository
+        TricksRepository $tricksRepository,
+        Security $security,
+        Request $request,
+        EntityManagerInterface $em
     ): Response
     {
+        $trick = $tricksRepository->getTrickById($id);
+        if (!$trick) {
+            throw $this->createNotFoundException('Trick introuvable');
+        }
+
+        $comment = new Comments();
+        $comment->setTricks($trick);
+        $comment->setUser($security->getUser());
+        $comment->setCreatedAt(new \DateTimeImmutable());
+        $comment->setUpdatedAt(new \DateTimeImmutable());
+
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($comment);
+            $em->flush();
+
+            $this->addFlash('success', 'Commentaire ajouté avec succès');
+            return $this->redirectToRoute('app_trick_details', [
+                'id' => $trick->getId(),
+                'name' => $trick->getUri(),
+            ]);
+        }
+
+
         return $this->render('trick_details/index.html.twig', [
-            'controller_name' => 'TrickDetailsController',
-            'trick' => $tricksRepository->getTrickById($id),
+            'trick' => $trick,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -376,6 +413,35 @@ class TrickDetailsController extends AbstractController
             'name' => $trick->getUri(),
         ]);
     }
+
+    #[Route('/trick/{id}/comments/load', name: 'app_trick_load_comments', methods: ['GET'])]
+    public function loadComments(
+        int $id,
+        Request $request,
+        CommentsRepository $repo,
+        TricksRepository $tricksRepository
+    ): JsonResponse {
+        $offset = $request->query->getInt('offset', 0);
+
+        // Récupérer le trick pour éviter erreur si non trouvé
+        $trick = $tricksRepository->find($id);
+        if (!$trick) {
+            return new JsonResponse(['html' => ''], Response::HTTP_NOT_FOUND);
+        }
+
+        // Charger les commentaires avec offset
+        $comments = $repo->findBy(['tricks' => $trick], ['created_at' => 'DESC'], 5, $offset);
+
+
+        // Générer le HTML depuis un partial Twig
+        $html = $this->renderView('trick_details/_comments.html.twig', [
+            'comments' => $comments,
+        ]);
+
+        return new JsonResponse(['html' => $html]);
+    }
+
+
 
 
 

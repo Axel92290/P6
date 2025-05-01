@@ -232,7 +232,8 @@
                             <div class="col mb-3">
                                 <div class="card">
                                     <div class="ratio ratio-16x9" style="height: 200px;">
-                                        <iframe class="card-img-top" src="{{ video.getPath() }}" title="Vidéo" allowfullscreen></iframe>
+                                        <iframe class="card-img-top" src="{{ video.getPath() }}" title="Vidéo"
+                                                allowfullscreen></iframe>
                                     </div>
 
 
@@ -326,37 +327,62 @@
 
         <hr>
 
-        <div class="container mt-4">
+        <!-- Commentaires -->
+        {% if app.user %}
+            <div class="container mt-4">
+                {{ form_start(form) }}
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-8 col-lg-6">
+                        <div class="d-flex align-items-center">
+                            {{ form_widget(form.content, { 'attr': {'class': 'form-control', 'rows': 2} }) }}
+                            <button class="btn btn-outline-dark ms-2" type="submit">Envoyer</button>
+                        </div>
+                    </div>
+                </div>
+                {{ form_end(form) }}
+            </div>
+            <hr>
+        {% endif %}
+        <div class="container">
             <div class="row justify-content-center">
-                <div class="col-12 col-md-8 col-lg-6">
-                    <div class="d-flex align-items-center">
-                        <textarea name="comment" id="comment" cols="6" rows="2" class="form-control"></textarea>
-                        <button class="btn btn-outline-dark ms-2 align-self-stretch" type="button">Leave a comment
-                        </button>
+                <div class="col-12" style="max-width: 900px;">
+                    <div id="commentsContainer">
+                        {% include 'trick_details/_comments.html.twig' with { 'comments': trick.getComments()|slice(0, 5) } %}
                     </div>
+
+                    {% if trick.getComments()|length > 5 %}
+                        <div class="text-center mt-3">
+                            <button id="loadMoreCommentsBtn" class="btn btn-outline-secondary">Charger plus de commentaires</button>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
-        <hr>
-
-        <div class="container mt-4">
-            {% for comment in trick.getComments() %}
-            <!-- Commentaires -->
-            <div class="row justify-content-center mb-3">
-                <div class="col-12 col-md-8 d-flex align-items-start border border-2 border-dark p-3">
-                    <div class="d-flex align-items-center justify-content-center rounded-circle border border-2 border-dark me-3"
-                         style="width: 64px; height: 64px;">
-                        <i class="fa-solid fa-user fa-2x"></i>
-                    </div>
-                    <div>
-                        <h5>{{ comment.getUser().getUsername() }}</h5>
-                        <p>{{ comment.getContent() }}</p>
-                        <!-- -->
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let offset = 5; // On commence après les 5 premiers commentaires affichés
+            const loadMoreBtn = document.getElementById('loadMoreCommentsBtn');
+            const commentsContainer = document.getElementById('commentsContainer');
+            const trickId = {{ trick.id }};
+
+            loadMoreBtn.addEventListener('click', function () {
+                fetch(`/trick/${trickId}/comments/load?offset=${offset}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        commentsContainer.insertAdjacentHTML('beforeend', data.html);
+                        offset += 5;
+
+                        // Si plus aucun commentaire à charger, on cache le bouton
+                        if (!data.html.trim()) {
+                            loadMoreBtn.style.display = 'none';
+                        }
+                    })
+                    .catch(error => console.error('Erreur:', error));
+            });
+        });
+    </script>
+
+
 {% endblock %}
