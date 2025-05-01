@@ -6,6 +6,7 @@ use App\Repository\TricksPhotoRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+
 #[ORM\Entity(repositoryClass: TricksPhotoRepository::class)]
 class TricksPhoto
 {
@@ -28,7 +29,12 @@ class TricksPhoto
 
     #[ORM\ManyToOne(inversedBy: 'tricksPhotos')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?tricks $tricks = null;
+    private ?Tricks $tricks = null;
+
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
@@ -83,12 +89,12 @@ class TricksPhoto
         return $this;
     }
 
-    public function getTricks(): ?tricks
+    public function getTricks(): ?Tricks
     {
         return $this->tricks;
     }
 
-    public function setTricks(?tricks $tricks): static
+    public function setTricks(?Tricks $tricks): static
     {
         $this->tricks = $tricks;
 

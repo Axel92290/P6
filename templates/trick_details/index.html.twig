@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+
 {% block title %}Hello TrickDetailsController!{% endblock %}
 
 {% block body %}
@@ -9,13 +10,21 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-center">
                     <figure class="figure">
-                        <img class="figure-img img-fluid rounded w-25" src="{{ getFeaturedImage(trick) }}"
-                             alt="Trick Image">
+                        {% if getFeaturedImage(trick) %}
+                            <img src="{{ asset('assets/pictures/' ~ getFeaturedImage(trick)) }}" alt="Trick image"
+                                 class="img-fluid rounded w-75">
+                        {% else %}
+                            <img src="{{ asset('assets/pictures/defaultTrick.jpg') }}" alt="Image par défaut"
+                                 class="img-fluid rounded w-25">
+                        {% endif %}
+
+
                     </figure>
                     <h6 class="fw-bolder mb-0">{{ trick.name }}</h6>
                 </div>
                 <div class="d-flex gap-4 position-absolute top-0 end-0 p-3">
-                    <button class="text-dark text-decoration-none border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#editTrickModal">
+                    <button class="text-dark text-decoration-none border-0 bg-transparent" data-bs-toggle="modal"
+                            data-bs-target="#editTrickModal">
                         <i class="fa-solid fa-pen"></i>
                     </button>
                     <form action="{{ path('app_trick_delete', { id: trick.id }) }}" method="post"
@@ -28,34 +37,42 @@
                 </div>
 
                 <!-- Modal Bootstrap -->
-                <div class="modal fade" id="editTrickModal" tabindex="-1" aria-labelledby="editTrickModalLabel" aria-hidden="true">
+                <div class="modal fade" id="editTrickModal" tabindex="-1" aria-labelledby="editTrickModalLabel"
+                     aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form method="post" action="{{ path('app_trick_update_fields', { id: trick.id }) }}" enctype="multipart/form-data">
+                            <form method="post" action="{{ path('app_trick_update_fields', { id: trick.id }) }}"
+                                  enctype="multipart/form-data">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="editTrickModalLabel">Modifier le trick</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Fermer"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="featuredImage" class="form-label">Image à la une</label>
                                         <input type="file" name="featuredImage" class="form-control" id="featuredImage">
                                         {% if getFeaturedImage(trick) %}
-                                            <img src="{{ getFeaturedImage(trick) }}" class="img-fluid mt-2" alt="Image actuelle">
+                                            <img src="{{ asset('assets/pictures/' ~ getFeaturedImage(trick)) }}"
+                                                 class="img-fluid mt-2" alt="Image actuelle">
                                         {% endif %}
                                     </div>
                                     <div class="mb-3">
                                         <label for="chapo" class="form-label">Chapô</label>
-                                        <input type="text" name="chapo" id="chapo" value="{{ trick.chapo }}" class="form-control">
+                                        <input type="text" name="chapo" id="chapo" value="{{ trick.chapo }}"
+                                               class="form-control">
                                     </div>
                                     <div class="mb-3">
                                         <label for="description" class="form-label">Description</label>
-                                        <textarea name="description" id="description" rows="4" class="form-control">{{ trick.description }}</textarea>
+                                        <textarea name="description" id="description" rows="4"
+                                                  class="form-control">{{ trick.description }}</textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('edit_trick_' ~ trick.id) }}">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                    <input type="hidden" name="_token"
+                                           value="{{ csrf_token('edit_trick_' ~ trick.id) }}">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler
+                                    </button>
                                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                                 </div>
                             </form>
@@ -70,6 +87,62 @@
 
     <!-- Main Content-->
     <div class="container position-relative px-4 px-lg-5">
+
+        <!-- Ajout des photos -->
+        <div class="text-center my-4">
+            <button class="btn btn-outline-success me-2" data-bs-toggle="modal" data-bs-target="#addPhotoModal">
+                <i class="fa-solid fa-plus"></i> Ajouter une photo
+            </button>
+
+            <div class="modal fade" id="addPhotoModal" tabindex="-1" aria-labelledby="addPhotoLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" action="{{ path('app_trick_add_photo', { id: trick.id }) }}"
+                              enctype="multipart/form-data">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addPhotoLabel">Ajouter une nouvelle photo</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="file" name="photo" class="form-control" required>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" name="_token" value="{{ csrf_token('add_photo_' ~ trick.id) }}">
+                                <button type="submit" class="btn btn-success">Ajouter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ajout des vidéos -->
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+                <i class="fa-solid fa-plus"></i> Ajouter une vidéo
+            </button>
+
+            <div class="modal fade" id="addVideoModal" tabindex="-1" aria-labelledby="addVideoLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" action="{{ path('app_trick_add_video', { id: trick.id }) }}">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addVideoLabel">Ajouter un lien YouTube</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="url" name="videoPath" class="form-control"
+                                       placeholder="https://youtube.com/..." required>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" name="_token" value="{{ csrf_token('add_video_' ~ trick.id) }}">
+                                <button type="submit" class="btn btn-primary">Ajouter</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
         <!-- Section-->
         <div class="container position-relative px-4 px-lg-5">
             <!-- Section-->
@@ -85,17 +158,72 @@
 
                         {% for photo in photos %}
                             {% if photo.id != featureImageId %}
-                                <div class="col mb-3">
-                                    <div class="card">
-                                        <img class="card-img-top" src="{{ photo.getPath() }}" alt="...">
+                                <div class="col mb-3 d-flex">
+                                    <div class="card w-100 h-100 d-flex flex-column">
+                                        <img class="card-img-top img-fluid" style="height: 200px; object-fit: contain;"
+                                             src="{{ asset('assets/pictures/' ~ photo.getPath()) }}"
+                                             alt="Photo trick {{ trick.name }}">
+
                                         <div class="card-body p-4">
                                             <div class="d-flex align-items-center justify-content-around">
-                                                <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-pen"></i></a>
-                                                <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-trash"></i></a>
+                                                <a href="#" class="text-dark text-decoration-none"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#editPhotoModal_{{ photo.id }}">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </a>
+
+                                                <form method="post"
+                                                      action="{{ path('app_trick_delete_photo', { id: photo.id }) }}"
+                                                      onsubmit="return confirm('Supprimer cette photo ?');">
+                                                    <input type="hidden" name="_token"
+                                                           value="{{ csrf_token('delete_photo_' ~ photo.id) }}">
+                                                    <button type="submit" class="btn btn-link text-danger p-0"><i
+                                                                class="fa-solid fa-trash"></i></button>
+                                                </form>
+
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="modal fade" id="editPhotoModal_{{ photo.id }}" tabindex="-1"
+                                     aria-labelledby="editPhotoModalLabel_{{ photo.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="post"
+                                                  action="{{ path('app_photo_update', { id: photo.id }) }}"
+                                                  enctype="multipart/form-data">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="editPhotoModalLabel_{{ photo.id }}">
+                                                        Modifier la photo</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Fermer"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Photo actuelle :</p>
+                                                    <img src="{{ asset('assets/pictures/' ~ photo.getPath()) }}"
+                                                         class="img-fluid mb-2" alt="">
+
+                                                    <div class="mb-3">
+                                                        <label for="newPhoto_{{ photo.id }}" class="form-label">Nouvelle
+                                                            photo</label>
+                                                        <input type="file" name="newPhoto" class="form-control"
+                                                               id="newPhoto_{{ photo.id }}">
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <input type="hidden" name="_token"
+                                                           value="{{ csrf_token('edit_photo_' ~ photo.id) }}">
+                                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Annuler
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
                             {% endif %}
                         {% endfor %}
 
@@ -103,16 +231,64 @@
                         {% for video in videos %}
                             <div class="col mb-3">
                                 <div class="card">
-                                    <iframe class="card-img-top" src="{{ video.getPath() }}" alt="..."></iframe>
+                                    <div class="ratio ratio-16x9" style="height: 200px;">
+                                        <iframe class="card-img-top" src="{{ video.getPath() }}" title="Vidéo" allowfullscreen></iframe>
+                                    </div>
+
 
                                     <div class="card-body p-4">
                                         <div class="d-flex align-items-center justify-content-around">
-                                            <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-pen"></i></a>
-                                            <a href="" class="text-dark text-decoration-none"><i class="fa-solid fa-trash"></i></a>
+                                            <a href="#" class="text-dark text-decoration-none" data-bs-toggle="modal"
+                                               data-bs-target="#editVideoModal_{{ video.id }}">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+
+                                            <form method="post"
+                                                  action="{{ path('app_trick_delete_video', { id: video.id }) }}"
+                                                  onsubmit="return confirm('Supprimer cette vidéo ?');">
+                                                <input type="hidden" name="_token"
+                                                       value="{{ csrf_token('delete_video_' ~ video.id) }}">
+                                                <button type="submit" class="btn btn-link text-danger p-0"><i
+                                                            class="fa-solid fa-trash"></i></button>
+                                            </form>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="modal fade" id="editVideoModal_{{ video.id }}" tabindex="-1"
+                                 aria-labelledby="editVideoModalLabel_{{ video.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="post" action="{{ path('app_video_update', { id: video.id }) }}">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="editVideoModalLabel_{{ video.id }}">Modifier
+                                                    la vidéo</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                        aria-label="Fermer"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="videoPath_{{ video.id }}" class="form-label">Lien
+                                                        YouTube</label>
+                                                    <input type="text" name="videoPath" id="videoPath_{{ video.id }}"
+                                                           class="form-control" value="{{ video.path }}">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <input type="hidden" name="_token"
+                                                       value="{{ csrf_token('edit_video_' ~ video.id) }}">
+                                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    Annuler
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
                         {% endfor %}
 
                     </div>
@@ -182,60 +358,5 @@
         </div>
         {% endfor %}
 
-
     </div>
-
-    <!-- Modal pour l'édition du trick -->
-    <div class="modal fade" id="editTrickModal" tabindex="-1" aria-labelledby="editTrickModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editTrickModalLabel">Éditer le Trick</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- Formulaire d'édition du trick -->
-                    <form
-                            action="{{ path('app_tricks_edit_edit', { id: trick.id }) }}"
-                            method="post"
-                            enctype="multipart/form-data"
-                    >
-                        <div class="mb-3">
-                            <label for="trickName" class="form-label">Nom du Trick</label>
-                            <input type="text" class="form-control" id="trickName" name="name" value="{{ trick.name }}"
-                                   required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="trickChapo" class="form-label">Chapô</label>
-                            <textarea class="form-control" id="trickChapo" name="chapo"
-                                      rows="2">{{ trick.chapo }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="trickDescription" class="form-label">Description</label>
-                            <textarea class="form-control" id="trickDescription" name="description"
-                                      rows="4">{{ trick.description }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <div class="mb-3">
-                                <label for="trickPhoto" class="form-label">Modifier la photo principale</label>
-                                <input type="file" class="form-control" id="trickPhoto" name="photo" accept="image/*">
-                                {% if getFeaturedImage(trick) %}
-                                    <div class="mt-2">
-                                        <p>Photo actuelle :</p>
-                                        <img src="{{ getFeaturedImage(trick) }}"
-                                             alt="Photo actuelle de {{ trick.name }}" class="img-fluid rounded">
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
-
 {% endblock %}

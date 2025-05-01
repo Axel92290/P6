@@ -59,7 +59,7 @@ class AppFixtures extends Fixture
                 $manager->persist($tricks);
 
                 $tricksPhoto = new TricksPhoto();
-                $tricksPhoto->setPath('/assets/pictures/' . mt_rand(0, 2) . '.jpg');
+                $tricksPhoto->setPath( mt_rand(0, 2) . '.jpg');
                 $tricksPhoto->setCreatedAt(new \DateTimeImmutable());
                 $tricksPhoto->setFirst(true);
                 $tricksPhoto->setTricks($tricks);

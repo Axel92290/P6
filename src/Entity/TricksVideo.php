@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\TricksVideoRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Tricks;
+
 
 #[ORM\Entity(repositoryClass: TricksVideoRepository::class)]
 class TricksVideo
@@ -25,7 +27,7 @@ class TricksVideo
 
     #[ORM\ManyToOne(inversedBy: 'tricksVideos')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?tricks $tricks = null;
+    private ?Tricks $tricks = null;
 
     public function getId(): ?int
     {
@@ -68,12 +70,12 @@ class TricksVideo
         return $this;
     }
 
-    public function getTricks(): ?tricks
+    public function getTricks(): ?Tricks
     {
         return $this->tricks;
     }
 
-    public function setTricks(?tricks $tricks): static
+    public function setTricks(?Tricks $tricks): static
     {
         $this->tricks = $tricks;
 
