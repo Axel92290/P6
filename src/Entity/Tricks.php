@@ -33,7 +33,7 @@ class Tricks
     /**
      * @var Collection<int, Comments>
      */
-    #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'tricks')]
+    #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'tricks', cascade: ['persist'], orphanRemoval: true)]
     private Collection $comments;
 
     /**
@@ -53,9 +53,6 @@ class Tricks
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
-
-
-
 
 
     public function __construct()

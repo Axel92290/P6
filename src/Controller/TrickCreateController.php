@@ -16,6 +16,12 @@ class TrickCreateController extends AbstractController
     public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
 
+        // Check if the user is logged in
+        if (!$this->getUser()) {
+            $this->addFlash('error', 'You must be logged in to create a trick.');
+            return $this->redirectToRoute('app_login');
+        }
+
         $trick = new Tricks();
         $user = $this->getUser();
         $trick->setUser($user);

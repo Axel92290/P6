@@ -8,18 +8,39 @@
 
 
     </style>
+
+    <header class="position-relative vh-100 d-flex flex-column justify-content-center align-items-center text-white"
+            style="background: url('{{ asset('assets/pictures/tricks_snow.gif') }}')center center / cover no-repeat;">
+        <div class="bg-dark bg-opacity-50 p-4 rounded text-center">
+            <h1 class="fw-bolder">
+                Bienvenue {{ app.user ? app.user.username : 'visiteur' }}
+            </h1>
+            <p class="lead">
+                SnowTricks : déchaînez votre créativité sur la poudreuse !
+            </p>
+            <a href="#tricksContainer" class="btn btn-outline-light mt-3">
+                Voir les tricks ↓
+            </a>
+        </div>
+    </header>
+
+
     <div class="container position-relative px-4 px-lg-5">
         <section class="py-5">
             <div class="text-center">
-                <h1 class="fw-bolder">Bienvenue {{ app.user }}</h1>
+
 
             </div>
-            <div class="text-center">
-                <a href="{{ path('app_trick_create') }}" class="btn btn-primary">Create a New Trick</a>
-            </div>
+
         </section>
         <!-- Section-->
         <section class="py-5">
+            {% if app.user %}
+                <div class="text-center">
+                    <a href="{{ path('app_trick_create') }}" class="btn btn-primary">Créer un Trick</a>
+                </div>
+            {% endif %}
+
             <div class="container px-4 px-lg-5 mt-5">
                 <div id="tricksContainer" class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-3 row-cols-xl-4">
                     {% include 'index/_tricks.html.twig' %}
@@ -29,10 +50,15 @@
                 <button id="loadMoreBtn" class="btn btn-outline-primary">Load More</button>
             </div>
         </section>
+
+        <button id="scrollTopBtn" class="btn btn-secondary position-fixed bottom-0 end-0 m-4 d-none"
+                title="Remonter en haut">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
 
             // On déclare une variable page qui contiendra le numéro de la page à charger
             let page = 2;
@@ -41,7 +67,7 @@
             const tricksContainer = document.getElementById('tricksContainer');
 
             // On écoute le clic sur le bouton "Load More"
-            loadMoreBtn.addEventListener('click', function() {
+            loadMoreBtn.addEventListener('click', function () {
                 // On envoie une requête fetch pour récupérer les tricks de la page suivante
                 fetch(`/load-more-tricks?page=${page}`)
                     .then(response => response.json())
@@ -54,5 +80,45 @@
             });
         });
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('tricksContainer');
+            const scrollBtn = document.getElementById('scrollTopBtn');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            let page = 2; // si tu utilises le Load More
+
+            // Affiche le bouton dès 15 cartes
+            function toggleScrollBtn() {
+                if (!container) return;
+                const count = container.querySelectorAll('.card').length;
+                scrollBtn.classList.toggle('d-none', count < 15);
+            }
+
+            // Initial
+            toggleScrollBtn();
+
+            // Si tu as un bouton “Load More”
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', () => {
+                    fetch(`/load-more-tricks?page=${page}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            container.insertAdjacentHTML('beforeend', data.html);
+                            page++;
+                            toggleScrollBtn();
+                        })
+                        .catch(console.error);
+                });
+            }
+
+            // Scroll smooth vers le haut
+            scrollBtn.addEventListener('click', () => {
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            });
+        });
+    </script>
+
+
 {% endblock %}
 

@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Welcome!{% endblock %}</title>
     <link rel="icon" href="...">
 
@@ -15,8 +16,8 @@
 <body class="d-flex flex-column min-vh-100">
 {% block header %}
 
-<!-- 🌐 NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark d-none d-md-flex">
     <div class="container-fluid px-4 px-lg-5">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 d-flex align-items-center gap-3">
@@ -29,8 +30,8 @@
 
                 {% if app.user %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fa-solid fa-user me-1"></i>{{ app.user.username }}
+                        <a class="nav-link" href="{{ path('app_index') ~ '#tricksContainer' }}">
+                            <i class="fa-solid fa-user me-1"></i>Tricks
                         </a>
                     </li>
                     <li class="nav-item">
@@ -57,14 +58,39 @@
 {% endblock %}
 
 
-<!-- 🧱 CONTENU DE PAGE -->
-<main class="mt-4 flex-grow-1">
+<!-- CONTENU DE PAGE -->
+<main class="flex-grow-1">
     {% block body %}{% endblock %}
 </main>
 
-<!-- 📌 FOOTER -->
+{# NAV MOBILE #}
+<nav class="navbar navbar-dark bg-dark  d-md-none">
+    <div class="container d-flex justify-content-around">
+        <a class="nav-link text-white" href="{{ path('app_index') }}">
+            <i class="fa-solid fa-house fa-lg"></i>
+        </a>
+        {% if app.user %}
+            <a class="nav-link text-white" href="{{ path('app_index') ~ '#tricksContainer' }}">
+                <i class="fa-solid fa-bookmark fa-lg"></i>
+            </a>
+            <a class="nav-link text-white" href="{{ path('app_logout') }}">
+                <i class="fa-solid fa-right-from-bracket fa-lg"></i>
+            </a>
+        {% else %}
+            <a class="nav-link text-white" href="{{ path('app_register') }}">
+                <i class="fa-solid fa-user-plus me-1 fa-lg"></i>
+            </a>
+            <a class="nav-link text-white" href="{{ path('app_login') }}">
+                <i class="fa-solid fa-right-to-bracket fa-lg"></i>
+            </a>
+        {% endif %}
+    </div>
+</nav>
+
+
+<!-- FOOTER -->
 {% block footer %}
-    <footer class="bg-dark text-white text-center py-3">
+    <footer class="bg-dark text-white text-center py-3 d-none d-md-block">
         &copy; SnowTricks {{ "now"|date("Y") }}
     </footer>
 {% endblock %}

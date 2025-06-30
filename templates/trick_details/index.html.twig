@@ -22,6 +22,7 @@
                     </figure>
                     <h6 class="fw-bolder mb-0">{{ trick.name }}</h6>
                 </div>
+                {% if app.user and (app.user == trick.user or is_granted('ROLE_ADMIN')) %}
                 <div class="d-flex gap-4 position-absolute top-0 end-0 p-3">
                     <button class="text-dark text-decoration-none border-0 bg-transparent" data-bs-toggle="modal"
                             data-bs-target="#editTrickModal">
@@ -35,7 +36,7 @@
                         </button>
                     </form>
                 </div>
-
+                {% endif %}
                 <!-- Modal Bootstrap -->
                 <div class="modal fade" id="editTrickModal" tabindex="-1" aria-labelledby="editTrickModalLabel"
                      aria-hidden="true">
@@ -129,9 +130,13 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <input type="url" name="videoPath" class="form-control"
-                                       placeholder="https://youtube.com/..." required>
+                                <label for="videoEmbed" class="form-label">Code embed YouTube</label>
+                                <div class="modal-body">
+                                    <input type="url" name="videoPath" class="form-control"
+                                           placeholder="https://youtube.com/..." required>
+                                </div>
                             </div>
+
                             <div class="modal-footer">
                                 <input type="hidden" name="_token" value="{{ csrf_token('add_video_' ~ trick.id) }}">
                                 <button type="submit" class="btn btn-primary">Ajouter</button>
@@ -144,7 +149,21 @@
 
         </div>
         <!-- Section-->
-        <div class="container position-relative px-4 px-lg-5">
+        <!----------------- BOUTON “Voir médias” (mobile)--------------->
+        <div class="d-block d-md-none text-center my-3">
+            <button
+                    class="btn btn-outline-primary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mediaCollapse"
+                    aria-expanded="false"
+                    aria-controls="mediaCollapse"
+            >
+                Voir médias
+            </button>
+        </div>
+
+        <div id="mediaCollapse" class="container collapse d-md-block position-relative px-4 px-lg-5">
             <!-- Section-->
             <section class="py-5">
                 <div class="container px-4 px-lg-5 mt-5">
@@ -232,8 +251,15 @@
                             <div class="col mb-3">
                                 <div class="card">
                                     <div class="ratio ratio-16x9" style="height: 200px;">
-                                        <iframe class="card-img-top" src="{{ video.getPath() }}" title="Vidéo"
-                                                allowfullscreen></iframe>
+                                        <iframe
+                                                class="card-img-top"
+                                                src="{{ video.getPath() }}"
+                                                title="YouTube video player" frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                referrerpolicy="strict-origin-when-cross-origin"
+                                                allowfullscreen>
+
+                                        </iframe>
                                     </div>
 
 
@@ -323,6 +349,20 @@
                     </div>
                 </div>
             </div>
+            {% if app.user and (app.user == trick.user or is_granted('ROLE_ADMIN')) %}
+            <div class="text-center my-4">
+                <form method="post" action="{{ path('app_trick_delete', { id: trick.id }) }}"
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');"
+                      class="m-0 p-0">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_trick_' ~ trick.id) }}">
+                    <button type="submit" class="btn btn-outline-danger me-2" title="Supprimer ce trick">
+                        Supprimer
+                    </button>
+                </form>
+            </div>
+
+
+            {% endif %}
         </section>
 
         <hr>
@@ -351,8 +391,10 @@
                     </div>
 
                     {% if trick.getComments()|length > 5 %}
-                        <div class="text-center mt-3">
-                            <button id="loadMoreCommentsBtn" class="btn btn-outline-secondary">Charger plus de commentaires</button>
+                        <div class="text-center mt-3 mb-3">
+                            <button id="loadMoreCommentsBtn" class="btn btn-outline-secondary">Charger plus de
+                                commentaires
+                            </button>
                         </div>
                     {% endif %}
                 </div>

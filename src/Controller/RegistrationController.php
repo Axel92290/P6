@@ -28,6 +28,11 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
+        if ($this->getUser()) {
+            // if the user is already logged in, redirect to the homepage
+            return $this->redirectToRoute('app_index');
+        }
+
 
         if ($form->isSubmitted() && $form->isValid()) {
             //dd($request, $form->isSubmitted(), $form->isValid());

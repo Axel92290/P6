@@ -10,9 +10,23 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Services\TrickService;
+
+/**
+ * Class IndexController
+ * @package App\Controller
+ *
+ * Contrôleur pour la page d'accueil et la gestion des tricks.
+ */
 
 class IndexController extends AbstractController
 {
+    /**
+     * Afficher la page d'accueil avec les 6 premiers tricks.
+     *
+     * @param TricksRepository $tricksRepository
+     * @return Response
+     */
     #[Route('/', name: 'app_index')]
     public function index(TricksRepository $tricksRepository): Response
     {
@@ -24,6 +38,15 @@ class IndexController extends AbstractController
         ]);
     }
 
+
+
+    /**
+     * Charger plus de tricks via AJAX.
+     *
+     * @param Request $request
+     * @param TricksRepository $tricksRepository
+     * @return JsonResponse
+     */
     #[Route('/load-more-tricks', name: 'load_more_tricks', methods: ['GET'])]
     public function loadMoreTricks(Request $request, TricksRepository $tricksRepository): JsonResponse
     {
@@ -41,6 +64,8 @@ class IndexController extends AbstractController
 
         return new JsonResponse(['html' => $html]);
     }
+
+
 }
 
 

@@ -3,6 +3,13 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
+    {% for flash_error in app.flashes('registration_error') %}
+        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+    {% endfor %}
+
+    {% for flash_success in app.flashes('registration_success') %}
+        <div class="alert alert-success" role="alert">{{ flash_success }}</div>
+    {% endfor %}
     <div class="container">
         <h1 class="text-center mb-5">Registration</h1>
         <div class="row justify-content-center">
