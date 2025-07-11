@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use AllowDynamicProperties;
 use App\Repository\TricksRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
-#[ORM\Entity(repositoryClass: TricksRepository::class)]
+#[AllowDynamicProperties] #[ORM\Entity(repositoryClass: TricksRepository::class)]
 class Tricks
 {
     #[ORM\Id]
@@ -19,24 +21,47 @@ class Tricks
     private ?string $name = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?\DateTimeImmutable $created_at = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $updatedAt = null;
+    private ?\DateTimeImmutable $updated_at = null;
 
     #[ORM\ManyToOne(inversedBy: 'tricks')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'tricks', orphanRemoval: true)]
+    /**
+     * @var Collection<int, Comments>
+     */
+    #[ORM\OneToMany(targetEntity: Comments::class, mappedBy: 'tricks', cascade: ['persist'], orphanRemoval: true)]
     private Collection $comments;
 
+    /**
+     * @var Collection<int, TricksPhoto>
+     */
+    #[ORM\OneToMany(targetEntity: TricksPhoto::class, mappedBy: 'tricks', orphanRemoval: true)]
+    private Collection $tricksPhotos;
 
+    /**
+     * @var Collection<int, TricksVideo>
+     */
+    #[ORM\OneToMany(targetEntity: TricksVideo::class, mappedBy: 'tricks', orphanRemoval: true)]
+    private Collection $tricksVideos;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $chapo = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
 
 
     public function __construct()
     {
+        $this->created_at = new \DateTimeImmutable();
         $this->comments = new ArrayCollection();
+        $this->tricksPhotos = new ArrayCollection();
+        $this->tricksVideos = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -58,24 +83,24 @@ class Tricks
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->createdAt;
+        return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreatedAt(\DateTimeImmutable $created_at): self
     {
-        $this->createdAt = $createdAt;
+        $this->created_at = $created_at;
 
         return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
-        return $this->updatedAt;
+        return $this->updated_at;
     }
 
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    public function setUpdatedAt(?\DateTimeImmutable $updated_at): static
     {
-        $this->updatedAt = $updatedAt;
+        $this->updated_at = $updated_at;
 
         return $this;
     }
@@ -100,6 +125,7 @@ class Tricks
         return $this->comments;
     }
 
+
     public function addComment(Comments $comment): static
     {
         if (!$this->comments->contains($comment)) {
@@ -122,5 +148,94 @@ class Tricks
         return $this;
     }
 
+    /**
+     * @return Collection<int, TricksPhoto>
+     */
+    public function getTricksPhotos(): Collection
+    {
+        return $this->tricksPhotos;
+    }
 
+    public function addTricksPhoto(TricksPhoto $tricksPhoto): static
+    {
+        if (!$this->tricksPhotos->contains($tricksPhoto)) {
+            $this->tricksPhotos->add($tricksPhoto);
+            $tricksPhoto->setTricks($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTricksPhoto(TricksPhoto $tricksPhoto): static
+    {
+        if ($this->tricksPhotos->removeElement($tricksPhoto)) {
+            // set the owning side to null (unless already changed)
+            if ($tricksPhoto->getTricks() === $this) {
+                $tricksPhoto->setTricks(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TricksVideo>
+     */
+    public function getTricksVideos(): Collection
+    {
+        return $this->tricksVideos;
+    }
+
+    public function addTricksVideo(TricksVideo $tricksVideo): static
+    {
+        if (!$this->tricksVideos->contains($tricksVideo)) {
+            $this->tricksVideos->add($tricksVideo);
+            $tricksVideo->setTricks($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTricksVideo(TricksVideo $tricksVideo): static
+    {
+        if ($this->tricksVideos->removeElement($tricksVideo)) {
+            // set the owning side to null (unless already changed)
+            if ($tricksVideo->getTricks() === $this) {
+                $tricksVideo->setTricks(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getChapo(): ?string
+    {
+        return $this->chapo;
+    }
+
+    public function setChapo(string $chapo): static
+    {
+        $this->chapo = $chapo;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getUri()
+    {
+        $name = strtolower($this->name);
+        $name = str_replace(' ', '-', $name);
+        return $name;
+    }
 }

@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réinitialisation de votre mot de passe{% endblock %}
+
+{% block body %}
+    {% for flash_error in app.flashes('reset_password_error') %}
+        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+    {% endfor %}
+
+    {% for flash_success in app.flashes('reset_password_success') %}
+        <div class="alert alert-success" role="alert">{{ flash_success }}</div>
+    {% endfor %}
+    <div class="container">
+        <h1 class="text-center mb-5">Réinitialiser mon mot de passe</h1>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-4">
+                {{ form_start(resetForm, {
+                    attr: {
+                        class: 'border border-2 border-dark p-4'
+                    }
+                }) }}
+                {# PREMIER CHAMP de mot de passe #}
+                <div class="mb-3">
+                    {{ form_label(resetForm.plainPassword.first, null, {
+                        label_attr: {
+                            class: 'form-label d-block text-center'
+                        }
+                    }) }}
+                    {{ form_widget(resetForm.plainPassword.first, {
+                        attr: {
+                            class: 'form-control border-0 border-bottom border-dark rounded-0',
+                            autocomplete: 'new-password',
+                            placeholder: 'Nouveau mot de passe'
+                        }
+                    }) }}
+                    {{ form_errors(resetForm.plainPassword.first) }}
+                </div>
+
+                {# DEUXIÈME CHAMP (confirmation) #}
+                <div class="mb-3">
+                    {{ form_label(resetForm.plainPassword.second, null, {
+                        label_attr: {
+                            class: 'form-label d-block text-center'
+                        }
+                    }) }}
+                    {{ form_widget(resetForm.plainPassword.second, {
+                        attr: {
+                            class: 'form-control border-0 border-bottom border-dark rounded-0',
+                            autocomplete: 'new-password',
+                            placeholder: 'Répéter le mot de passe'
+                        }
+                    }) }}
+                    {{ form_errors(resetForm.plainPassword.second) }}
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-outline-dark">Enregistrer</button>
+                </div>
+                {{ form_end(resetForm) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

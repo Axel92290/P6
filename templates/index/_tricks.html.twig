@@ -1,0 +1,35 @@
+{# templates/index/_tricks.html.twig #}
+{% for trick in tricks %}
+    <div class="col mb-5 h-100">
+        <div class="card h-100 d-flex flex-column">
+            <!-- Trick image -->
+            {% set imagePath = getFeaturedImage(trick) %}
+            <img src="{{ asset('assets/pictures/' ~ (imagePath ?? 'defaultTrick.jpg')) }}"
+                 class="card-img-top object-fit-cover"
+                 style="height: 200px;"
+                 alt="Image de {{ trick.name }}">
+
+            <!-- Trick details -->
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h6 class="fw-bolder mb-0">{{ trick.name }}</h6>
+                    <div class="d-flex gap-4">
+                        <a href="{{ path('app_trick_details', { name: trick.getUri(), id: trick.id }) }}"
+                           class="text-dark text-decoration-none">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <form method="post" action="{{ path('app_trick_delete', { id: trick.id }) }}"
+                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');"
+                              class="m-0 p-0">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_trick_' ~ trick.id) }}">
+                            <button type="submit" class="btn btn-link text-danger p-0" title="Supprimer ce trick">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endfor %}
