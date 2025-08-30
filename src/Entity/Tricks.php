@@ -232,10 +232,9 @@ class Tricks
         return $this;
     }
 
-    public function getUri()
+    public function getUri(): array|string
     {
         $name = strtolower($this->name);
-        $name = str_replace(' ', '-', $name);
-        return $name;
+        return str_replace(' ', '-', $name);
     }
 }

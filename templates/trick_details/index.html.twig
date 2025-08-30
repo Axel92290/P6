@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 
-{% block title %}Hello TrickDetailsController!{% endblock %}
+{% block title %}Tricks Snowtricks{% endblock %}
 
 {% block body %}
     <!-- BLOC IMAGE A LA UNE-->
@@ -23,19 +23,19 @@
                     <h6 class="fw-bolder mb-0">{{ trick.name }}</h6>
                 </div>
                 {% if app.user and (app.user == trick.user or is_granted('ROLE_ADMIN')) %}
-                <div class="d-flex gap-4 position-absolute top-0 end-0 p-3">
-                    <button class="text-dark text-decoration-none border-0 bg-transparent" data-bs-toggle="modal"
-                            data-bs-target="#editTrickModal">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <form action="{{ path('app_trick_delete', { id: trick.id }) }}" method="post"
-                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete_trick_' ~ trick.id) }}">
-                        <button type="submit" class="text-dark text-decoration-none border-0 bg-transparent">
-                            <i class="fa-solid fa-trash"></i>
+                    <div class="d-flex gap-4 position-absolute top-0 end-0 p-3">
+                        <button class="text-dark text-decoration-none border-0 bg-transparent" data-bs-toggle="modal"
+                                data-bs-target="#editTrickModal">
+                            <i class="fa-solid fa-pen"></i>
                         </button>
-                    </form>
-                </div>
+                        <form action="{{ path('app_trick_delete', { id: trick.id }) }}" method="post"
+                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_trick_' ~ trick.id) }}">
+                            <button type="submit" class="text-dark text-decoration-none border-0 bg-transparent">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                 {% endif %}
                 <!-- Modal Bootstrap -->
                 <div class="modal fade" id="editTrickModal" tabindex="-1" aria-labelledby="editTrickModalLabel"
@@ -91,9 +91,13 @@
 
         <!-- Ajout des photos -->
         <div class="text-center my-4">
-            <button class="btn btn-outline-success me-2" data-bs-toggle="modal" data-bs-target="#addPhotoModal">
-                <i class="fa-solid fa-plus"></i> Ajouter une photo
-            </button>
+            {% if app.user and (is_granted('ROLE_ADMIN') or app.user == trick.user) %}
+                <button class="btn btn-outline-success me-2"
+                        data-bs-toggle="modal" data-bs-target="#addPhotoModal">
+                    <i class="fa-solid fa-plus"></i> Ajouter une photo
+                </button>
+            {% endif %}
+
 
             <div class="modal fade" id="addPhotoModal" tabindex="-1" aria-labelledby="addPhotoLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -117,9 +121,11 @@
             </div>
 
             <!-- Ajout des vidéos -->
+            {% if app.user and (is_granted('ROLE_ADMIN') or app.user == trick.user) %}
             <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
                 <i class="fa-solid fa-plus"></i> Ajouter une vidéo
             </button>
+            {% endif %}
 
             <div class="modal fade" id="addVideoModal" tabindex="-1" aria-labelledby="addVideoLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -130,10 +136,12 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                <label for="videoEmbed" class="form-label">Code embed YouTube</label>
+                                <label for="videoEmbed" class="form-label">Code embed</label>
                                 <div class="modal-body">
-                                    <input type="url" name="videoPath" class="form-control"
-                                           placeholder="https://youtube.com/..." required>
+                                    <textarea name="videoPath" class="form-control" rows="4"
+                                              placeholder='<iframe src="..." frameborder="0" allowfullscreen></iframe>'
+                                              required></textarea>
+
                                 </div>
                             </div>
 
@@ -251,16 +259,9 @@
                             <div class="col mb-3">
                                 <div class="card">
                                     <div class="ratio ratio-16x9" style="height: 200px;">
-                                        <iframe
-                                                class="card-img-top"
-                                                src="{{ video.getPath() }}"
-                                                title="YouTube video player" frameborder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                referrerpolicy="strict-origin-when-cross-origin"
-                                                allowfullscreen>
-
-                                        </iframe>
+                                        {{ video.path|raw }}
                                     </div>
+
 
 
                                     <div class="card-body p-4">
@@ -298,7 +299,7 @@
                                             <div class="modal-body">
                                                 <div class="mb-3">
                                                     <label for="videoPath_{{ video.id }}" class="form-label">Lien
-                                                        YouTube</label>
+                                                        </label>
                                                     <input type="text" name="videoPath" id="videoPath_{{ video.id }}"
                                                            class="form-control" value="{{ video.path }}">
                                                 </div>
@@ -327,7 +328,7 @@
         <section class="pb-5">
             <div class="container px-4 px-lg-5 mt-5">
                 {% if trick.chapo %}
-                    <div class="row gx-6 gx-lg-6 row-cols-1 row-cols-md-3 row-cols-xl-6 justify-content-center">
+                    <div class="row row-cols-1 row-cols-md-3 row-cols-xl-12 justify-content-center">
                         <h2>{{ trick.chapo }}</h2>
                     </div>
                 {% endif %}
@@ -350,16 +351,16 @@
                 </div>
             </div>
             {% if app.user and (app.user == trick.user or is_granted('ROLE_ADMIN')) %}
-            <div class="text-center my-4">
-                <form method="post" action="{{ path('app_trick_delete', { id: trick.id }) }}"
-                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');"
-                      class="m-0 p-0">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete_trick_' ~ trick.id) }}">
-                    <button type="submit" class="btn btn-outline-danger me-2" title="Supprimer ce trick">
-                        Supprimer
-                    </button>
-                </form>
-            </div>
+                <div class="text-center my-4">
+                    <form method="post" action="{{ path('app_trick_delete', { id: trick.id }) }}"
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce trick ?');"
+                          class="m-0 p-0">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_trick_' ~ trick.id) }}">
+                        <button type="submit" class="btn btn-outline-danger me-2" title="Supprimer ce trick">
+                            Supprimer le trick
+                        </button>
+                    </form>
+                </div>
 
 
             {% endif %}

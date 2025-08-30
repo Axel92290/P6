@@ -24,13 +24,10 @@ use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-
-
-
-
 
 
 
@@ -228,14 +225,15 @@ class TrickDetailsController extends AbstractController
      * @return Response
      */
     #[Route('/trick/delete/{id}', name: 'app_trick_delete', methods: ['POST'])]
+    #[IsGranted('TRICK_DELETE', subject: 'trick')]
     public function remove(
-        Tricks        $trick,           // on auto-hydrate l'entité directement
+        Tricks        $trick,
         Request       $request,
-        TrickService  $trickService    // injection du service
+        TrickService  $trickService
     ): Response {
         // Vérification CSRF
         if ($this->isCsrfTokenValid('delete_trick_' . $trick->getId(), $request->request->get('_token'))) {
-            // délégation au service
+
             $trickService->deleteTrick($trick);
             $this->addFlash('success', 'Trick supprimé avec succès');
         }

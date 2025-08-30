@@ -1,7 +1,7 @@
 {# templates/index/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello IndexController!{% endblock %}
+{% block title %}Snowtricks{% endblock %}
 
 {% block body %}
     <style>
@@ -58,66 +58,57 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener('DOMContentLoaded', () => {
+            const container   = document.getElementById('tricksContainer');
+            const scrollBtn   = document.getElementById('scrollTopBtn');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
 
-            // On déclare une variable page qui contiendra le numéro de la page à charger
+            // Si ta page 1 est déjà affichée au chargement :
             let page = 2;
-            // On récupère le bouton "Load More" et le container des tricks
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            const tricksContainer = document.getElementById('tricksContainer');
+            let loading = false;
 
-            // On écoute le clic sur le bouton "Load More"
-            loadMoreBtn.addEventListener('click', function () {
-                // On envoie une requête fetch pour récupérer les tricks de la page suivante
-                fetch(`/load-more-tricks?page=${page}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // On ajoute les tricks à la fin du container
-                        tricksContainer.insertAdjacentHTML('beforeend', data.html);
-                        page++;
-                    })
-                    .catch(error => console.error('Error:', error));
-            });
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const container = document.getElementById('tricksContainer');
-            const scrollBtn = document.getElementById('scrollTopBtn');
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            let page = 2; // si tu utilises le Load More
-
-            // Affiche le bouton dès 15 cartes
             function toggleScrollBtn() {
-                if (!container) return;
+                if (!container || !scrollBtn) return;
                 const count = container.querySelectorAll('.card').length;
                 scrollBtn.classList.toggle('d-none', count < 15);
             }
 
-            // Initial
-            toggleScrollBtn();
+            async function loadMore() {
+                if (loading) return;
+                loading = true;
+                try {
+                    const res  = await fetch(`/load-more-tricks?page=${page}`, {headers: {'X-Requested-With':'XMLHttpRequest'}});
+                    const data = await res.json();
 
-            // Si tu as un bouton “Load More”
-            if (loadMoreBtn) {
-                loadMoreBtn.addEventListener('click', () => {
-                    fetch(`/load-more-tricks?page=${page}`)
-                        .then(r => r.json())
-                        .then(data => {
-                            container.insertAdjacentHTML('beforeend', data.html);
-                            page++;
-                            toggleScrollBtn();
-                        })
-                        .catch(console.error);
-                });
+
+                    if (!data.html || data.html.trim() === '') {
+                        loadMoreBtn.classList.add('d-none');
+                        return;
+                    }
+
+                    container.insertAdjacentHTML('beforeend', data.html);
+                    page++;
+                    toggleScrollBtn();
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    loading = false;
+                }
             }
 
-            // Scroll smooth vers le haut
-            scrollBtn.addEventListener('click', () => {
-                window.scrollTo({top: 0, behavior: 'smooth'});
-            });
+            if (loadMoreBtn && !loadMoreBtn.dataset.bound) {
+                loadMoreBtn.addEventListener('click', loadMore);
+                loadMoreBtn.dataset.bound = '1';
+            }
+
+            if (scrollBtn) {
+                scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            }
+
+            toggleScrollBtn();
         });
     </script>
+
 
 
 {% endblock %}
