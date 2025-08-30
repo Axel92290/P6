@@ -76,30 +76,6 @@ Les utilisateurs peuvent consulter, créer, éditer et supprimer des tricks, ain
   - Mot de passe : `admin@test.com`
   - Rôle : `ROLE_ADMIN`
 
----
-
-## 📸 Utilisation
-
-- La page d’accueil affiche les tricks avec un bouton **"Load More"**.  
-- Chaque trick a :
-  - Une image à la une  
-  - Un nom  
-  - Des boutons d’action (voir, éditer, supprimer) selon les droits  
-- La page détail permet :
-  - de voir les photos/vidéos associées  
-  - de poster des commentaires (si connecté)  
-  - d’ajouter/modifier/supprimer des médias (auteur/admin)  
-
----
-
-## 🔒 Sécurité
-
-- Les routes sensibles sont protégées par **Voters** :
-  - Seul l’auteur du trick ou un admin peut le modifier/supprimer.  
-- Protection CSRF pour tous les formulaires.  
-- Mot de passe hashé via `password_hasher`.
-
----
 
 ## 📝 Auteur
 
